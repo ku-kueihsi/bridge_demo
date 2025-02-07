@@ -1,14 +1,9 @@
 "use client";
 
-// START: Preserve spaces to avoid auto-sorting
 import "leaflet/dist/leaflet.css";
 
+// Fixes Marker image url
 import L from 'leaflet';
-
-// import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.webpack.css";
-
-// // Fix for Leaflet markers
-// delete (L.Icon.Default.prototype as any)._getIconUrl;
 
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: '/images/marker-icon-2x.png',
@@ -16,15 +11,9 @@ L.Icon.Default.mergeOptions({
   shadowUrl: '/images/marker-shadow.png',
 });
 
-// import "leaflet-defaulticon-compatibility";
-// END: Preserve spaces to avoid auto-sorting
 import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet";
 
 export default function Map() {
-  // const ICON = icon({
-  //   iconUrl: "/marker.png",
-  //   iconSize: [32, 32],
-  // })
 
   return (
     <MapContainer
