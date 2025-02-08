@@ -1,0 +1,5 @@
+Runing python script to import csv to postgre
+In psql run
+ALTER TABLE pandas_db ADD COLUMN geom geometry(Point, 4326);
+UPDATE pandas_db SET geom = ST_SetSRID(ST_MakePoint("Longitude", "Latitude"), 4326);
+CREATE INDEX locations_geom_idx ON pandas_db USING GIST(geom);
