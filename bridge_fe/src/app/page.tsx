@@ -81,12 +81,13 @@ export default function Home() {
   return (
     <main>
       <div className="flex flex-1 flex-row justify-center">
-        <text>Search bridges by Zipcode or current location</text>
+        <text>Search bridges by Zipcode or current location(empty input)</text>
         <input
           className="block w-1000 p-4 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
           placeholder="US Zip"
           onChange={updateSearchZip}
-          value={searchZip}>
+          value={searchZip}
+          onKeyUp={(e) => { if (e.key === 'Enter') { onSearchClick() } }}>
         </input>
         <button
           type="button"
