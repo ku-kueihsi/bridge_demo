@@ -23,6 +23,7 @@ export default function Home() {
 
   function updateCenter(center: L.LatLng) {
     centerPos.current = center;
+    // setInitLocation([center.lat, center.lng]);
   }
 
   function getData(location) {
@@ -37,6 +38,7 @@ export default function Home() {
         // console.log(data);
         setBridgeData(data);
         // setInitLocation(location);
+        setSearchZip("");
       })
       .catch((error) => {
         console.log(error)
@@ -56,6 +58,7 @@ export default function Home() {
         if (data.length == 1) {
           setBridgeData(data);
           setInitLocation([data[0].Latitude, data[0].Longitude]);
+          setSearchZip("");
         }
       })
       .catch((error) => {
@@ -74,10 +77,10 @@ export default function Home() {
       })
       .then((data) => {
         // console.log(data);
-        setSearchZip("");
         if (data.LAT && data.LNG) {
           setInitLocation([data.LAT, data.LNG]);
-          getData([data.LAT, data.LNG])
+          getData([data.LAT, data.LNG]);
+          setSearchZip("");
         }
       })
       .catch((error) => {
