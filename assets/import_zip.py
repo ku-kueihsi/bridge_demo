@@ -13,5 +13,5 @@ def degreeToDecimal(d: typing.AnyStr):
 engine = create_engine('postgresql://postgres@localhost/postgres')
 df = pd.read_csv('./ziplatlng.csv')
 df.to_sql('ziplatlng', engine, if_exists='replace', index=False, dtype={'ZIP': types.INT, 'LAT': types.Float, 'LNG': types.Float})
-print("Run SQL commands after importing")
+print("Run SQL commands manually after importing")
 print("CREATE INDEX idx_ziplatlng ON ziplatlng USING hash(\"ZIP\");")

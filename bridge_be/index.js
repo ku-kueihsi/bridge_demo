@@ -59,6 +59,24 @@ async function findLatLngFromZip(zip) {
   }
 }
 
+async function findStructureNumber(id) {
+  try {
+      // In gis it is the order of long/lat.
+      const query = `
+          SELECT *
+          FROM pandas_db
+          WHERE "id" = $1;
+      `;
+      const values = [id];
+      const result = await pool.query(query, values);
+      // const result = await pool.query(query);
+      return result.rows;
+  } catch (error) {
+      console.error("Error executing query:", error);
+      throw error;
+  }
+}
+
 app.get('/', (req, res) => {
     // const latitude = 41.761672222222224;
     // const longitude = -71.42495555555556;
@@ -78,6 +96,17 @@ app.get('/zip', (req, res) => {
   .then((zipInfo)=>{
     res.json(zipInfo);
     // console.log("Points within distance:", points);
+  })
+  .catch((error)=>{console.error("Error:", error);})
+  .finally();
+})
+
+app.get('/structure_number', (req, res) => {
+  const {id = ""} = req.query;
+  console.log(id);
+  findStructureNumber(id)
+  .then((result)=>{
+    res.json(result);
   })
   .catch((error)=>{console.error("Error:", error);})
   .finally();

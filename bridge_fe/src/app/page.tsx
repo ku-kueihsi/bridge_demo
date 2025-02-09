@@ -43,6 +43,26 @@ export default function Home() {
       });
   }
 
+  function getDataById(bridgeId) {
+    fetch(`http://73.162.166.11:9000/structure_number?id=${bridgeId}`)
+      .then((response) => {
+        if (!response.ok) {
+          throw Error("Data fetching failed.")
+        }
+        return response.json();
+      })
+      .then((data) => {
+        // console.log(data);
+        if (data.length == 1) {
+          setBridgeData(data);
+          setInitLocation([data[0].Latitude, data[0].Longitude]);
+        }
+      })
+      .catch((error) => {
+        console.log(error)
+      });
+  }
+
   function getLatLng(zip: string) {
     // console.log(`http://73.162.166.11/:9000/zip?zip=${zip}`);
     fetch(`http://73.162.166.11:9000/zip?zip=${zip}`)
@@ -77,33 +97,54 @@ export default function Home() {
   function onSearchClick() {
     //console.log(centerPos.current);
     // console.log('clicked');
-    if (searchZip.length == 5) {
+    // console.log(searchZip.includes(","));
+    if (searchZip.length == 5 && !isNaN(+searchZip)) {
+      // console.log("zip");
       getLatLng(searchZip);
-    } else {
+    } else if (searchZip.length == 0) {
+      // console.log("empty");
       // console.log('clicked');
       // console.log(centerPos.current);
       setInitLocation([centerPos.current.lat, centerPos.current.lng]);
       getData([centerPos.current.lat, centerPos.current.lng]);
-    }
-    setSearchZip('');
+    } else if (searchZip.includes(",")) {
+      // console.log("latlng");
+      // console.log(searchZip);
+      const codes = searchZip.split(",");
+      if (codes.length == 2 && !isNaN(+codes[0]) && !isNaN(+codes[1])) {
+        const lat = Number(codes[0]);
+        const lng = Number(codes[1])
+        setInitLocation([lat, lng]);
+        getData([lat, lng]);
+      }
+    } else if (searchZip.includes("-")){
+      // console.log("id code");
+      const codes = searchZip.split("-");
+      if (codes.length == 2) {
+        getDataById(codes[0] + ',' + codes[1].replace(/^0+/, ''));
+      }
+    } 
   }
 
   return (
     <main>
-      <div className="flex flex-1 flex-row justify-center">
-        Search bridges by Zipcode or current location(empty input)
+      <div className="flex flex-1 flex-row justify-center text-[32px]">
+        Search Bridges
+      </div>
+      <div className="flex flex-1 flex-row justify-center text-[18px]">
+        Zipcode/State Code-Structure Number/Latitude,Longitude/Current location(empty input)
       </div>
       <div className="flex flex-1 flex-row justify-center">
         <input
-          className="block w-1000 p-4 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-          placeholder="US Zip"
+          className="block w-[800px] h-[24px] p-4 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+          placeholder="E.g. 94043 or 06-1CA0095, or 37.41916,-122.07541 or leave it empty."
           onChange={updateSearchZip}
           value={searchZip}
           onKeyUp={(e) => { if (e.key === 'Enter') { onSearchClick() } }}>
         </input>
         <button
           type="button"
-          className="text-white bg-blue-700 hover:bg-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
+          className="h-[34px] text-white bg-blue-700 hover:bg-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
           onClick={onSearchClick}>
           Search
         </button>

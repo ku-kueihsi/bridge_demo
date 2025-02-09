@@ -22,13 +22,14 @@ def usLatLngToDec(l):
 
 engine = create_engine('postgresql://postgres@localhost/postgres')
 df = pd.read_csv('./CA22.csv', dtype='string')
-df['id'] = [s1 + ',' +  s2 for [s1, s2] in zip(df['STATE_CODE_001'], df['STRUCTURE_NUMBER_008'])]
+df['id'] = [s1 + ',' +  s2.strip(' ').lstrip('0') for [s1, s2] in zip(df['STATE_CODE_001'], df['STRUCTURE_NUMBER_008'])]
 df['Longitude'] = [-usLatLngToDec(d) for d in df['LONG_017']]
 df['Latitude'] = [usLatLngToDec(d) for d in df['LAT_016']]
-df.to_sql('pandas_db', engine, if_exists='replace', index=False)
+# df.to_sql('pandas_db', engine, if_exists='replace', index=False)
 
 
-print("Run SQL commands after importing")
+print("Run SQL commands manually after importing")
 print("ALTER TABLE pandas_db ADD COLUMN geom geometry(Point, 4326);")
 print("UPDATE pandas_db SET geom = ST_SetSRID(ST_MakePoint(\"Longitude\", \"Latitude\"), 4326);")
 print("CREATE INDEX locations_geom_idx ON pandas_db USING GIST(geom);")
+print("CREATE INDEX idx_id ON pandas_db USING hash(\"id\");")
