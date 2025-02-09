@@ -1,2 +1,4 @@
-assets
+assets/*csv
+assets/venv
+assets/__pycache__
 .DS_Store
