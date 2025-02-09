@@ -11,14 +11,38 @@ L.Icon.Default.mergeOptions({
   shadowUrl: '/images/marker-shadow.png',
 });
 
-import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet";
+import { MapContainer, Marker, Popup, TileLayer, useMap } from "react-leaflet";
+import { useEffect, useRef, useCallback } from "react";
 
-export default function Map() {
+function MapControl({ updateCenter, center }) {
+  const map = useMap()
+  const position = useRef(map.getCenter())
 
+  // const onClick = useCallback(() => {
+  //   map.setView(center, zoom)
+  // }, [map])
+
+  const onMove = useCallback(() => {
+    position.current = map.getCenter()
+    // console.log('map center:', position.current)
+    updateCenter(map.getCenter())
+  }, [map, updateCenter])
+
+  useEffect(() => {
+    map.on('move', onMove)
+    return () => {
+      map.off('move', onMove)
+    }
+  }, [map, onMove])
+  map.flyTo(center, map.getZoom());
+  return null
+}
+
+export default function Map({ updateCenter, center, bridges }) {
   return (
     <MapContainer
       preferCanvas={true}
-      center={[51.505, -0.09]}
+      center={center}
       zoom={11}
       scrollWheelZoom={true}
       style={{ height: "400px", width: "600px" }}
@@ -27,12 +51,24 @@ export default function Map() {
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
-      <Marker position={[51.505, -0.09]}>
-        <Popup>
-          This Marker icon is displayed correctly with{" "}
-          <i>leaflet-defaulticon-compatibility</i>.
-        </Popup>
-      </Marker>
+      {bridges.map((bridge, index) =>
+        <Marker key={bridge.STATE_CODE_001 + bridge.STRUCTURE_NUMBER_008.replace(/^0+/, '')} position={[bridge.Latitude, bridge.Longitude]}>
+          <Popup>
+            <ul>
+              <li>
+                State code: {bridge.STATE_CODE_001}
+              </li>
+              <li>
+                Structure number: {bridge.STRUCTURE_NUMBER_008.replace(/^0+/, '')}
+              </li>
+              <li>
+                Year of build: {bridge.YEAR_BUILT_027}
+              </li>
+            </ul>
+          </Popup>
+        </Marker>)}
+
+      <MapControl updateCenter={updateCenter} center={center} />
     </MapContainer>
   );
 }

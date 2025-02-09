@@ -2,6 +2,8 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import { useEffect, useState, useRef } from "react";
+// import L from 'leaflet';
 
 const LazyMap = dynamic(() => import("@/components/Map"), {
   ssr: false,
@@ -9,9 +11,83 @@ const LazyMap = dynamic(() => import("@/components/Map"), {
 });
 
 export default function Home() {
+  const [bridgeData, setBridgeData] = useState([]);
+  const [curLocation, setCurLocation] = useState([41.761672222222224, -71.42495555555556]);
+
+  const [searchZip, setSearchZip] = useState<string>("");
+  const centerPos = useRef([0, 0]);
+
+  function updateSearchZip(e: React.ChangeEvent<HTMLInputElement>) {
+    setSearchZip(e.target.value);
+  }
+
+  function updateCenter(center: L.LatLng) {
+    centerPos.current = center;
+  }
+
+  function getData(location) {
+    fetch(`http://localhost:9000/?distance=1000000000&latitude=${location[0]}&longitude=${location[1]}`)
+      .then((response) => {
+        if (!response.ok) {
+          throw Error("Data fetching failed.")
+        }
+        return response.json();
+      })
+      .then((data) => {
+        console.log(data);
+        setBridgeData(data);
+      })
+      .catch((error) => { 
+        console.log(error) 
+      });
+  }
+
+  function getLatLng(zip: string) {
+    console.log(`http://localhost:9000/zip?zip=${zip}`);
+    fetch(`http://localhost:9000/zip?zip=${zip}`)
+      .then((response) => {
+        if (!response.ok) {
+          throw Error("Zip fetching failed.")
+        }
+        return response.json();
+      })
+      .then((data) => {
+        console.log(data);
+        setSearchZip("");
+        setCurLocation([data.LAT, data.LNG])
+      })
+      .catch((error) => { 
+        console.log(error) 
+      });
+  }
+
+  useEffect(() => {getData(curLocation) }, [curLocation]);
+  // const map = useMap()
+  // console.log('map center:', map.getCenter())
+
+  function onSearchClick() {
+    //console.log(centerPos.current);
+    // console.log('clicked');
+    if (searchZip.length == 5) {
+      getLatLng(searchZip);
+    }
+  }
+
   return (
     <main>
-      <LazyMap />
+      <input
+        className="block p-4 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+        placeholder="US zip or empty for current map"
+        onChange={updateSearchZip}
+        value={searchZip}>
+      </input>
+      <button
+        type="button"
+        className="text-white bg-blue-700 hover:bg-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
+        onClick={onSearchClick}>
+        Search
+      </button>
+      <LazyMap updateCenter={updateCenter} center={curLocation} bridges={bridgeData}/>
     </main>
   );
 }
