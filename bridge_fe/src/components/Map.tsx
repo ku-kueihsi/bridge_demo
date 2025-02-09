@@ -43,7 +43,7 @@ export default function Map({ updateCenter, center, bridges }) {
     <MapContainer
       preferCanvas={true}
       center={center}
-      zoom={11}
+      zoom={12}
       scrollWheelZoom={true}
       style={{ height: "400px", width: "600px" }}
     >
@@ -51,7 +51,7 @@ export default function Map({ updateCenter, center, bridges }) {
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
-      {bridges.map((bridge, index) =>
+      {bridges.map((bridge) =>
         <Marker key={bridge.STATE_CODE_001 + bridge.STRUCTURE_NUMBER_008.replace(/^0+/, '')} position={[bridge.Latitude, bridge.Longitude]}>
           <Popup>
             <ul>

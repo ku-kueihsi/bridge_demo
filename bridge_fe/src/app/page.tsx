@@ -12,7 +12,7 @@ const LazyMap = dynamic(() => import("@/components/Map"), {
 
 export default function Home() {
   const [bridgeData, setBridgeData] = useState([]);
-  const [curLocation, setCurLocation] = useState([41.761672222222224, -71.42495555555556]);
+  const [curLocation, setCurLocation] = useState([37.73372222222223, -122.49421111111111]);
 
   const [searchZip, setSearchZip] = useState<string>("");
   const centerPos = useRef([0, 0]);
@@ -26,7 +26,7 @@ export default function Home() {
   }
 
   function getData(location) {
-    fetch(`http://localhost:9000/?distance=1000000000&latitude=${location[0]}&longitude=${location[1]}`)
+    fetch(`http://localhost:9000/?distance=5000&latitude=${location[0]}&longitude=${location[1]}`)
       .then((response) => {
         if (!response.ok) {
           throw Error("Data fetching failed.")
@@ -36,9 +36,10 @@ export default function Home() {
       .then((data) => {
         console.log(data);
         setBridgeData(data);
+        setCurLocation(location);
       })
-      .catch((error) => { 
-        console.log(error) 
+      .catch((error) => {
+        console.log(error)
       });
   }
 
@@ -56,12 +57,12 @@ export default function Home() {
         setSearchZip("");
         setCurLocation([data.LAT, data.LNG])
       })
-      .catch((error) => { 
-        console.log(error) 
+      .catch((error) => {
+        console.log(error)
       });
   }
 
-  useEffect(() => {getData(curLocation) }, [curLocation]);
+  useEffect(() => { getData(curLocation) }, [curLocation]);
   // const map = useMap()
   // console.log('map center:', map.getCenter())
 
@@ -70,24 +71,52 @@ export default function Home() {
     // console.log('clicked');
     if (searchZip.length == 5) {
       getLatLng(searchZip);
+    } else {
+      console.log('clicked');
+      console.log(centerPos.current);
+      getData([centerPos.current.lat, centerPos.current.lng]);
     }
   }
 
   return (
     <main>
-      <input
-        className="block p-4 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-        placeholder="US zip or empty for current map"
-        onChange={updateSearchZip}
-        value={searchZip}>
-      </input>
-      <button
-        type="button"
-        className="text-white bg-blue-700 hover:bg-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
-        onClick={onSearchClick}>
-        Search
-      </button>
-      <LazyMap updateCenter={updateCenter} center={curLocation} bridges={bridgeData}/>
+      <div className="flex flex-1 flex-row justify-center">
+        <input
+          className="block w-1000 p-4 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+          placeholder="US zip or empty for current map"
+          onChange={updateSearchZip}
+          value={searchZip}>
+        </input>
+        <button
+          type="button"
+          className="text-white bg-blue-700 hover:bg-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
+          onClick={onSearchClick}>
+          Search
+        </button>
+      </div>
+      <div className="flex flex-1 flex-row justify-center">
+        <LazyMap updateCenter={updateCenter} center={curLocation} bridges={bridgeData} />
+        <div className="h-[400px] w-[600px] overflow-auto">
+          <table className="table-auto">
+            <thead>
+              <tr>
+                <th>State Code</th>
+                <th>Structure Number</th>
+                <th>Year of Build</th>
+              </tr>
+            </thead>
+            <tbody>
+            {bridgeData.map((bridge)=>
+              <tr key={'t' + bridge.STATE_CODE_001 + bridge.STRUCTURE_NUMBER_008.replace(/^0+/, '')} 
+              onClick={()=>{setCurLocation([bridge.Latitude, bridge.Longitude])}}>
+                <td>{bridge.STATE_CODE_001}</td>
+                <td>{bridge.STRUCTURE_NUMBER_008.replace(/^0+/, '')}</td>
+                <td>{bridge.YEAR_BUILT_027}</td>
+              </tr>)}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </main>
   );
 }
