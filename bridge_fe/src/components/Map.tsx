@@ -34,7 +34,8 @@ function MapControl({ updateCenter, center }) {
       map.off('move', onMove)
     }
   }, [map, onMove])
-  map.flyTo(center, map.getZoom());
+  map.setView(center, map.getZoom());
+  // map.flyTo(center, map.getZoom());
   return null
 }
 
