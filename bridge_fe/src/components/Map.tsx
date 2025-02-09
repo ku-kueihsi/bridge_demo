@@ -34,8 +34,8 @@ function MapControl({ updateCenter, center }) {
       map.off('move', onMove)
     }
   }, [map, onMove])
-  map.setView(center, map.getZoom());
-  // map.flyTo(center, map.getZoom());
+  // map.setView(center, map.getZoom());
+  map.flyTo(center, 13);
   return null
 }
 
@@ -44,7 +44,7 @@ export default function Map({ updateCenter, center, bridges }) {
     <MapContainer
       preferCanvas={true}
       center={center}
-      zoom={12}
+      zoom={13}
       scrollWheelZoom={true}
       style={{ height: "400px", width: "600px" }}
     >
