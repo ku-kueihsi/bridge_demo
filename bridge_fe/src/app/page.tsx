@@ -13,17 +13,31 @@ const LazyMap = dynamic(() => import("@/components/Map"), {
 export default function Home() {
   const [bridgeData, setBridgeData] = useState([]);
   const [initLocation, setInitLocation] = useState([37.73372222222223, -122.49421111111111]);
+  const [initMapZoom, setInitMapZoom] = useState(13);
 
   const [searchZip, setSearchZip] = useState<string>("");
-  const centerPos = useRef([0, 0]);
+  const currentLocation = useRef([0, 0]);
+  const currentMapZoom = useRef(13);
 
   function updateSearchZip(e: React.ChangeEvent<HTMLInputElement>) {
     setSearchZip(e.target.value);
   }
 
-  function updateCenter(center: L.LatLng) {
-    centerPos.current = center;
+  
+  function updateCenter(center: L.LatLng, zoom) {
+    currentLocation.current = center;
+    currentMapZoom.current = zoom;
     // setInitLocation([center.lat, center.lng]);
+  }
+
+  function debounce(func, delay = 100) {
+    let timeoutId;
+    return function (...args) {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        func.apply(this, args);
+      }, delay);
+    };
   }
 
   function getData(location) {
@@ -90,7 +104,7 @@ export default function Home() {
 
   useEffect(() => { 
     // getData(initLocation) 
-    centerPos.current = initLocation;
+    currentLocation.current = initLocation;
   }, [initLocation]);
 
   useEffect(() => { 
@@ -101,6 +115,8 @@ export default function Home() {
     //console.log(centerPos.current);
     // console.log('clicked');
     // console.log(searchZip.includes(","));
+    // setInitLocation([currentLocation.current.lat, currentLocation.current.lng]);
+    // setInitMapZoom(currentMapZoom.current);
     if (searchZip.length == 5 && !isNaN(+searchZip)) {
       // console.log("zip");
       getLatLng(searchZip);
@@ -108,8 +124,9 @@ export default function Home() {
       // console.log("empty");
       // console.log('clicked');
       // console.log(centerPos.current);
-      setInitLocation([centerPos.current.lat, centerPos.current.lng]);
-      getData([centerPos.current.lat, centerPos.current.lng]);
+      setInitLocation([currentLocation.current.lat, currentLocation.current.lng]);
+      setInitMapZoom(currentMapZoom.current);
+      getData([currentLocation.current.lat, currentLocation.current.lng]);
     } else if (searchZip.includes(",")) {
       // console.log("latlng");
       // console.log(searchZip);
@@ -129,6 +146,11 @@ export default function Home() {
     } 
   }
 
+  function inputOnFocus() {
+    setInitLocation([currentLocation.current.lat, currentLocation.current.lng]);
+    setInitMapZoom(currentMapZoom.current);
+  }
+
   return (
     <main>
       <div className="flex flex-1 flex-row justify-center text-[32px]">
@@ -143,7 +165,8 @@ export default function Home() {
           placeholder="E.g. 94043 or 06-1CA0095, or 37.41916,-122.07541 or leave it empty."
           onChange={updateSearchZip}
           value={searchZip}
-          onKeyUp={(e) => { if (e.key === 'Enter') { onSearchClick() } }}>
+          onKeyUp={(e) => { if (e.key === 'Enter') { onSearchClick() } }}
+          onFocus={inputOnFocus}>
         </input>
         <button
           type="button"
@@ -153,7 +176,7 @@ export default function Home() {
         </button>
       </div>
       <div className="flex flex-1 flex-row justify-center">
-        <LazyMap updateCenter={updateCenter} center={initLocation} bridges={bridgeData} />
+        <LazyMap updateCenter={debounce(updateCenter, 50)} center={initLocation} zoom={initMapZoom} bridges={bridgeData} />
         <div className="h-[400px] w-[600px] overflow-auto">
           <table className="table-auto">
             <thead>

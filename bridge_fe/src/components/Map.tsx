@@ -14,7 +14,7 @@ L.Icon.Default.mergeOptions({
 import { MapContainer, Marker, Popup, TileLayer, useMap } from "react-leaflet";
 import { useEffect, useRef, useCallback } from "react";
 
-function MapControl({ updateCenter, center }) {
+function MapControl({ updateCenter, center, zoom }) {
   const map = useMap()
   const position = useRef(map.getCenter())
 
@@ -25,7 +25,7 @@ function MapControl({ updateCenter, center }) {
   const onMove = useCallback(() => {
     position.current = map.getCenter()
     // console.log('map center:', position.current)
-    updateCenter(map.getCenter())
+    updateCenter(map.getCenter(), map.getZoom())
   }, [map, updateCenter])
 
   useEffect(() => {
@@ -35,16 +35,16 @@ function MapControl({ updateCenter, center }) {
     }
   }, [map, onMove])
   // map.setView(center, map.getZoom());
-  map.flyTo(center, 13);
+  map.flyTo(center, zoom);
   return null
 }
 
-export default function Map({ updateCenter, center, bridges }) {
+export default function Map({ updateCenter, center, zoom, bridges }) {
   return (
     <MapContainer
       preferCanvas={true}
       center={center}
-      zoom={13}
+      zoom={zoom}
       scrollWheelZoom={true}
       style={{ height: "400px", width: "600px" }}
     >
@@ -69,7 +69,7 @@ export default function Map({ updateCenter, center, bridges }) {
           </Popup>
         </Marker>)}
 
-      <MapControl updateCenter={updateCenter} center={center} />
+      <MapControl updateCenter={updateCenter} center={center} zoom={zoom}/>
     </MapContainer>
   );
 }
