@@ -25,7 +25,7 @@ df = pd.read_csv('./CA22.csv', dtype='string')
 df['id'] = [s1 + ',' +  s2.strip(' ').lstrip('0') for [s1, s2] in zip(df['STATE_CODE_001'], df['STRUCTURE_NUMBER_008'])]
 df['Longitude'] = [-usLatLngToDec(d) for d in df['LONG_017']]
 df['Latitude'] = [usLatLngToDec(d) for d in df['LAT_016']]
-# df.to_sql('pandas_db', engine, if_exists='replace', index=False)
+df.to_sql('pandas_db', engine, if_exists='replace', index=False)
 
 
 print("Run SQL commands manually after importing")
