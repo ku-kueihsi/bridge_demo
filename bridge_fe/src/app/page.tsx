@@ -154,10 +154,10 @@ export default function Home() {
   return (
     <main>
       <div className="flex flex-1 flex-row justify-center text-[32px]">
-        Search Bridges
+        National Bridge Inventory
       </div>
       <div className="flex flex-1 flex-row justify-center text-[18px]">
-        Zipcode/State Code-Structure Number/Latitude,Longitude/Current location(empty input)
+        Search by Zipcode/State Code-Structure Number/Latitude,Longitude/Current location(empty input)
       </div>
       <div className="flex flex-1 flex-row justify-center">
         <input
@@ -176,7 +176,7 @@ export default function Home() {
         </button>
       </div>
       <div className="flex flex-1 flex-row justify-center">
-        <LazyMap updateCenter={debounce(updateCenter, 25)} center={initLocation} zoom={initMapZoom} bridges={bridgeData} />
+        <LazyMap updateCenter={updateCenter} center={initLocation} zoom={initMapZoom} bridges={bridgeData} />
         <div className="h-[400px] w-[600px] overflow-auto">
           <table className="table-auto">
             <thead>
